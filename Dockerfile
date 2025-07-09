@@ -25,7 +25,7 @@ ENV PYTHONFAULTHANDLER=1 \
 ARG PYTHON_VERSION=3.12
 ARG INSTALL_TYPE=all
 ARG ENABLE_GPU=true
-ARG TARGETARCH
+ARG TARGETARCH=amd64
 
 LABEL maintainer="unclecode"
 LABEL description="🔥🕷️ Crawl4AI: Open-source LLM Friendly Web Crawler & scraper"
