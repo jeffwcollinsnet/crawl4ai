@@ -106,6 +106,7 @@ RUN groupadd -r appuser && useradd --no-log-init -r -g appuser appuser
 # Create and set permissions for appuser home directory
 RUN mkdir -p /home/appuser && chown -R appuser:appuser /home/appuser
 
+FROM python:3.12-slim-bookworm
 WORKDIR ${APP_HOME}
 
 RUN echo '#!/bin/bash\n\
