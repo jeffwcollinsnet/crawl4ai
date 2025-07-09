@@ -74,7 +74,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN apt-get update && apt-get dist-upgrade -y \
     && rm -rf /var/lib/apt/lists/*
 
-FROM nvidia/cuda:12.3.2-devel-debian12
+FROM nvidia/cuda:12.9.1-devel-ubuntu24.04
 RUN if [ "$ENABLE_GPU" = "true" ] && [ "$TARGETARCH" = "amd64" ] ; then \
     apt-get update && apt-get install -y --no-install-recommends \
     nvidia-cuda-toolkit \
