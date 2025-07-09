@@ -74,7 +74,6 @@ jobs:
             USE_LOCAL=false
             GITHUB_REPO=https://github.com/unclecode/crawl4ai.git
             GITHUB_BRANCH=main
-            TARGETARCH=amd64
           platforms: linux/amd64
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
