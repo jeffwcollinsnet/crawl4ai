@@ -46,6 +46,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get clean \ 
     && rm -rf /var/lib/apt/lists/*
 
+RUN wget https://developer.download.nvidia.com/compute/cuda/repos/debian12/x86_64/cuda-keyring_1.1-1_all.deb \
+    && dpkg -i cuda-keyring_1.1-1_all.deb \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends cuda-toolkit-12-8 \
+    && apt-get install -y --no-install-recommends cuda-drivers \
+    && apt-get install -y --no-install-recommends libomp-dev \
+    && apt-get clean \ 
+    && rm -rf /var/lib/apt/lists/*
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libglib2.0-0 \
     libnss3 \
@@ -74,39 +83,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN apt-get update && apt-get dist-upgrade -y \
     && rm -rf /var/lib/apt/lists/*
 
-FROM nvidia/cuda:12.9.1-devel-ubuntu24.04
-RUN if [ "$ENABLE_GPU" = "true" ] && [ "$TARGETARCH" = "amd64" ] ; then \
-    apt-get update && apt-get install -y --no-install-recommends \
-    nvidia-cuda-toolkit \
-    && apt-get clean \ 
-    && rm -rf /var/lib/apt/lists/* ; \
-else \
-    echo "Skipping NVIDIA CUDA Toolkit installation (unsupported platform or GPU disabled)"; \
-fi
-
-RUN if [ "$TARGETARCH" = "arm64" ]; then \
-    echo "🦾 Installing ARM-specific optimizations"; \
-    apt-get update && apt-get install -y --no-install-recommends \
-    libopenblas-dev \
-    && apt-get clean \ 
-    && rm -rf /var/lib/apt/lists/*; \
-elif [ "$TARGETARCH" = "amd64" ]; then \
-    echo "🖥️ Installing AMD64-specific optimizations"; \
-    apt-get update && apt-get install -y --no-install-recommends \
-    libomp-dev \
-    && apt-get clean \ 
-    && rm -rf /var/lib/apt/lists/*; \
-else \
-    echo "Skipping platform-specific optimizations (unsupported platform)"; \
-fi
-
 # Create a non-root user and group
 RUN groupadd -r appuser && useradd --no-log-init -r -g appuser appuser
 
 # Create and set permissions for appuser home directory
 RUN mkdir -p /home/appuser && chown -R appuser:appuser /home/appuser
 
-FROM python:3.12-slim-bookworm
 WORKDIR ${APP_HOME}
 
 RUN echo '#!/bin/bash\n\
