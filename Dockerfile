@@ -48,12 +48,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 RUN wget https://developer.download.nvidia.com/compute/cuda/repos/debian12/x86_64/cuda-keyring_1.1-1_all.deb \
     && dpkg -i cuda-keyring_1.1-1_all.deb \
-    && apt-get update \
-    && apt-get install -y --no-install-recommends cuda-toolkit-12-8 \
-    && apt-get install -y --no-install-recommends cuda-drivers \
-    && apt-get install -y --no-install-recommends libomp-dev \
-    && apt-get clean \ 
-    && rm -rf /var/lib/apt/lists/*
+    && apt-get update
+
+RUN apt-get install -y --no-install-recommends cuda-toolkit-12-8
+
+RUN apt-get install -y --no-install-recommends cuda-drivers
+
+RUN apt-get install -y --no-install-recommends libomp-dev
+
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libglib2.0-0 \
@@ -80,8 +83,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get clean \ 
     && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update && apt-get dist-upgrade -y \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get dist-upgrade -y && rm -rf /var/lib/apt/lists/*
 
 # Create a non-root user and group
 RUN groupadd -r appuser && useradd --no-log-init -r -g appuser appuser
@@ -110,10 +112,10 @@ COPY . /tmp/project/
 COPY deploy/docker/supervisord.conf .
 
 COPY deploy/docker/requirements.txt .
+
 RUN pip install --no-cache-dir -r requirements.txt
 
-RUN if [ "$INSTALL_TYPE" = "all" ] ; then \
-        pip install --no-cache-dir \
+RUN pip install --no-cache-dir \
             torch \
             torchvision \
             torchaudio \
@@ -121,25 +123,15 @@ RUN if [ "$INSTALL_TYPE" = "all" ] ; then \
             nltk \
             transformers \
             tokenizers && \
-        python -m nltk.downloader punkt stopwords ; \
-    fi
+        python -m nltk.downloader punkt stopwords ;
 
-RUN if [ "$INSTALL_TYPE" = "all" ] ; then \
-        pip install "/tmp/project/[all]" && \
-        python -m crawl4ai.model_loader ; \
-    elif [ "$INSTALL_TYPE" = "torch" ] ; then \
-        pip install "/tmp/project/[torch]" ; \
-    elif [ "$INSTALL_TYPE" = "transformer" ] ; then \
-        pip install "/tmp/project/[transformer]" && \
-        python -m crawl4ai.model_loader ; \
-    else \
-        pip install "/tmp/project" ; \
-    fi
+RUN pip install "/tmp/project/[all]" \
+    && python -m crawl4ai.model_loader
 
 RUN pip install --no-cache-dir --upgrade pip && \
     /tmp/install.sh && \
-    python -c "import crawl4ai; print('✅ crawl4ai is ready to rock!')" && \
-    python -c "from playwright.sync_api import sync_playwright; print('✅ Playwright is feeling dramatic!')"
+    python -c "import crawl4ai" && \
+    python -c "from playwright.sync_api import sync_playwright"
 
 RUN crawl4ai-setup
 
